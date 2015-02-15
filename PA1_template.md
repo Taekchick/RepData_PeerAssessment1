@@ -1,19 +1,11 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
-```{r, echo=FALSE}
-library(ggplot2)
-library(plyr)
-options(scipen=999)
-```
+
 
 ## Loading and preprocessing the data
 Load the data and change date factor to Date
-```{r readdata}
+
+```r
 setwd("C:/Users/rache_000/Desktop/Coursera")
 data <- read.csv("activity.csv", header =TRUE, na.strings="NA")
 data$date <- as.Date(data$date)
@@ -22,31 +14,40 @@ data$date <- as.Date(data$date)
 ## What is mean total number of steps taken per day?
 * Calculate the total number of steps taken per day 
 * then create a histogram of the total number of steps taken each day
-```{r totalnumstepsperday}
+
+```r
 totalSteps <- aggregate(steps ~ date, data, sum, na.rm= TRUE)
 hist(totalSteps$steps, main=paste("Total Number of Steps Taken Each Day"), xlab ="Total Steps per Day")
 ```
 
+![](./PA1_template_files/figure-html/totalnumstepsperday-1.png) 
+
 Report the mean and median of total number of steps taken per day
-```{r}
+
+```r
 stepsMean <- mean(totalSteps$steps)
 stepsMedian <- median(totalSteps$steps)
 ```
-The `mean` is `r stepsMean`
+The `mean` is 10766.1886792
 
-The `median` is `r stepsMedian`
+The `median` is 10765
 
 ## What is the average daily activity pattern?
 * Make a time series plot of the 5 minute interval and average number of steps taken
 * Print which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps 
-```{r avgactivity}
+
+```r
 avgActivity <- aggregate(steps ~ interval, data, mean, na.rm=TRUE)
 
 ggplot(avgActivity, aes(x=interval, y=steps)) + geom_line(lwd=1) + ggtitle("Average Daily Activity Pattern") + xlab("Time Interval") + ylab("Average Steps in 5 mins interval")
+```
 
+![](./PA1_template_files/figure-html/avgactivity-1.png) 
+
+```r
 maxActivity <- avgActivity[which.max(avgActivity$steps),]$interval
 ```
-In 5-minute interval, on average across all the days in the dataset, containing the max number of steps is `r maxActivity`
+In 5-minute interval, on average across all the days in the dataset, containing the max number of steps is 835
 
 ## Imputing missing values
 * Report the total number of missing values
@@ -54,12 +55,14 @@ In 5-minute interval, on average across all the days in the dataset, containing 
 * Create new dataset for the missing data filled in
 * Make a histogram of the total number of steps taken each day
 * Calculate mean and median
-```{r}
+
+```r
 missing <- sum(is.na(data$steps))
 ```
-Total Number of Missing Values is `r missing`
+Total Number of Missing Values is 2304
 
-```{r imputedsteps}
+
+```r
 # fill in the missing values
 for(i in 1:nrow(data)) {
         if(is.na(data[i,]$steps)) {
@@ -71,24 +74,29 @@ for(i in 1:nrow(data)) {
 imputedSteps <- aggregate(steps ~ date, data, sum)
 # make a histogram
 hist(imputedSteps$steps,main=paste("Total Number of Steps Taken Each Day (Imputed)"), xlab ="Total Steps per Day")
+```
 
+![](./PA1_template_files/figure-html/imputedsteps-1.png) 
+
+```r
 imputedMean <- mean(imputedSteps$steps)
 imputedMedian <- median(imputedSteps$steps)        
 ```
-`Imputed Mean` value is `r imputedMean`
+`Imputed Mean` value is 10766.1886792
 
-`Imputed Median` value is `r imputedMedian`
+`Imputed Median` value is 10766.1886792
 
 Previously,
-the `mean` was `r stepsMean`
-and the `median` was `r stepsMedian`
+the `mean` was 10766.1886792
+and the `median` was 10765
 
 Overall, the mean stayed the same but the median increased slightly.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 * create a new factor variable with weekday and weekend
 * Make a time series plot of the 5 minutes interval and average number of steps taken, averaged across all weekday days or weekend days
-```{r weekdaysdata}
+
+```r
 data$day <- ifelse(weekdays(data$date)=="Sunday" | weekdays(data$date)=="Saturday", "Weekend", "weekday")
 
 # change the day variable to factor variable
@@ -97,5 +105,6 @@ data$day <- as.factor(data$day)
 weekdaysData <- aggregate(steps ~ interval+day, data, mean, na.rm=TRUE)
 
 ggplot(weekdaysData, aes(x=interval, y=steps)) + geom_line(lwd=1) + facet_wrap(~day, ncol=1) + ggtitle("Activity Patterns between Weekdays and Weekends") + xlab("Time Interval") + ylab("Number of Steps")
-
 ```
+
+![](./PA1_template_files/figure-html/weekdaysdata-1.png) 
